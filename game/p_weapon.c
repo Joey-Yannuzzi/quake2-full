@@ -831,7 +831,8 @@ void Blaster_Fire (edict_t *ent, vec3_t g_offset, int damage, qboolean hyper, in
 
 	for (int bogus = 0; bogus < 5; bogus++)
 	{
-		fire_blaster(ent, start, right, damage, 10, effect, hyper); //forward, 1000
+		vec3_t dir = { crandom(), crandom(), crandom() };
+		fire_blaster(ent, start, dir,  damage, crandom() * 1000, effect, hyper); //forward, 1000
 	}
 
 	// send muzzle flash
