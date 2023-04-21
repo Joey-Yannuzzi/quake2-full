@@ -342,12 +342,35 @@ void blaster_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *
 	G_FreeEdict (self);
 }
 
+void spawn_ally(edict_t *owner, vec3_t start, vec3_t dir)
+{
+	edict_t* ally;
+	ally = G_Spawn();
+	ally->svflags = SVF_MONSTER;
+	VectorCopy(start, ally->s.origin);
+	VectorCopy(start, ally->s.old_origin);
+	vectoangles(dir, ally->s.angles);
+	ally->movetype = MOVETYPE_STEP;
+	ally->clipmask = MASK_MONSTERSOLID;
+	ally->solid = SOLID_BBOX;
+	ally->mass = 100;
+	VectorSet(ally->mins, -16, -16, -24);
+	VectorSet(ally->maxs, 16, 16, 32);
+	ally->s.modelindex = gi.modelindex("models/monsters/soldier/tris.md2");
+	ally->owner = owner;
+	ally->dmg = 0;
+	ally->classname = "ally";
+	gi.linkentity(ally);
+}
 void fire_blaster (edict_t *self, vec3_t start, vec3_t dir, int damage, int speed, int effect, qboolean hyper)
 {
+	gi.centerprintf(self, self->classname);
 	edict_t	*bolt;
 	trace_t	tr;
 
 	VectorNormalize (dir);
+
+	spawn_ally(self, start, dir);
 
 	bolt = G_Spawn();
 	bolt->svflags = SVF_DEADMONSTER;

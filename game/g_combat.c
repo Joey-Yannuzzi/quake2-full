@@ -486,13 +486,14 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 // do the damage
 	if (take)
 	{
-		if ((targ->svflags & SVF_MONSTER) || (client))
+		gi.centerprintf(attacker, targ->classname);
+		/*if ((targ->svflags & SVF_MONSTER) || (client))
 			SpawnDamage (TE_BLOOD, point, normal, take);
 		else
-			SpawnDamage (te_sparks, point, normal, take);
+			SpawnDamage (te_sparks, point, normal, take);*/
 
 
-		targ->health = targ->health - take;
+		//targ->health = targ->health - take;
 			
 		if (targ->health <= 0)
 		{
