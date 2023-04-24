@@ -1192,7 +1192,10 @@ void soldier_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int dama
 		self->monsterinfo.currentmove = &soldier_move_death6;
 }
 
-
+void testFunct(edict_t* self)
+{
+	gi.centerprintf(self, "testing");
+}
 //
 // SPAWN
 //

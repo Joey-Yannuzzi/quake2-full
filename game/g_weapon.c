@@ -364,13 +364,13 @@ void spawn_ally(edict_t *owner, vec3_t start, vec3_t dir)
 }
 void fire_blaster (edict_t *self, vec3_t start, vec3_t dir, int damage, int speed, int effect, qboolean hyper)
 {
-	gi.centerprintf(self, self->classname);
+	//gi.centerprintf(self, self->classname);
 	edict_t	*bolt;
 	trace_t	tr;
 
 	VectorNormalize (dir);
 
-	spawn_ally(self, start, dir);
+	//spawn_ally(self, start, dir);
 
 	bolt = G_Spawn();
 	bolt->svflags = SVF_DEADMONSTER;
