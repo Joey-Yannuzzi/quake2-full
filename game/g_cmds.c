@@ -913,8 +913,17 @@ static void P_ProjectSource(gclient_t* client, vec3_t point, vec3_t distance, ve
 	G_ProjectSource(point, _distance, forward, right, result);
 }
 
+int unitTypeNum = 0;
 void Cmd_SpawnUnit_f(edict_t* ent)
 {
+	unitTypeNum++;
+
+	if (unitTypeNum > 5)
+	{
+		gi.centerprintf(ent, "Max units spawned");
+		return;
+	}
+
 	vec3_t	forward, right;
 	vec3_t	start;
 	vec3_t	offset;
@@ -934,6 +943,57 @@ void Cmd_SpawnUnit_f(edict_t* ent)
 	VectorCopy(start, unit->s.old_origin);
 	vectoangles(forward, unit->s.angles);
 	SP_monster_soldier(unit);
+
+	switch (unitTypeNum)
+	{
+	case 1:
+		unit->unitType = "lord";
+		unit->move = 5;
+		unit->lord = 1;
+		unit->defense = 2;
+		unit->resistance = 2;
+		unit->attack = 5;
+		unit->unitSpeed = 5;
+		break;
+	case 2:
+		unit->unitType = "cavalier";
+		unit->move = 7;
+		unit->mounted = 1;
+		unit->defense = 0;
+		unit->resistance = 10;
+		unit->attack = 7;
+		unit->unitSpeed = 5;
+		break;
+	case 3:
+		unit->unitType = "knight";
+		unit->move = 4;
+		unit->armored = 1;
+		unit->defense = 10;
+		unit->resistance = 0;
+		unit->attack = 10;
+		unit->unitSpeed = 1;
+		break;
+	case 4:
+		unit->unitType = "fighter";
+		unit->move = 5;
+		unit->defense = 3;
+		unit->resistance = 2;
+		unit->attack = 6;
+		unit->unitSpeed = 10;
+		break;
+	case 5:
+		unit->unitType = "mage";
+		unit->move = 5;
+		unit->magic = 1;
+		unit->defense = 1;
+		unit->resistance = 1;
+		unit->attack = 6;
+		unit->unitSpeed = 7;
+		break;
+	default:
+		unit->unitType = NULL;
+		break;
+	}
 	unit->classname = "unit";
 }
 

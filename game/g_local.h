@@ -1109,5 +1109,16 @@ struct edict_s
 	// common data blocks
 	moveinfo_t		moveinfo;
 	monsterinfo_t	monsterinfo;
+	char* unitType;
+	int move;
+	int defense;
+	int resistance;
+	int attack;
+	int unitSpeed;
+	int armored; // 1 for armored units; high defense, weak to magic attacks, low movement
+	int mounted; // 1 for mounted units; high movement, weak to physical attacks, high resistance
+	int magic; // 1 for magic units; make magic attacks that hit resistance instead of defense
+	int lord; // 1 for lord units; death causes game over
+	edict_t* unitSelected; //NULL if none are selected
 };
 
