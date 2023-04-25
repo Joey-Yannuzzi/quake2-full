@@ -926,6 +926,10 @@ void Cmd_SpawnUnit_f(edict_t* ent)
 	VectorScale(forward, -2, ent->client->kick_origin);
 
 	edict_t* unit = G_Spawn();
+	for (int bogus = 0; bogus < 100; bogus++)
+	{
+		VectorAdd(forward, start, start);
+	}
 	VectorCopy(start, unit->s.origin);
 	VectorCopy(start, unit->s.old_origin);
 	vectoangles(forward, unit->s.angles);
@@ -970,7 +974,8 @@ void ClientCommand (edict_t *ent)
 	}
 	if (Q_stricmp (cmd, "help") == 0)
 	{
-		Cmd_Help_f (ent);
+		//Cmd_Help_f (ent);
+		Cmd_SpawnUnit_f(ent);
 		return;
 	}
 

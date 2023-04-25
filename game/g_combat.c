@@ -487,6 +487,14 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 	if (take)
 	{
 		gi.centerprintf(attacker, targ->classname);
+		if (Q_stricmp(targ->classname, "unit") == 0 && targ->owner != attacker)
+		{
+			targ->owner = attacker;
+		}
+		else if (Q_stricmp(targ->classname, "unit") == 0 && targ->owner == attacker)
+		{
+			targ->owner = NULL;
+		}
 		/*if ((targ->svflags & SVF_MONSTER) || (client))
 			SpawnDamage (TE_BLOOD, point, normal, take);
 		else
