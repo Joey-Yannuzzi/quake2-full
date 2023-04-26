@@ -1111,6 +1111,7 @@ struct edict_s
 	monsterinfo_t	monsterinfo;
 	char* unitType;
 	int move;
+	int tempMove;
 	int defense;
 	int resistance;
 	int attack;
@@ -1120,5 +1121,7 @@ struct edict_s
 	int magic; // 1 for magic units; make magic attacks that hit resistance instead of defense
 	int lord; // 1 for lord units; death causes game over
 	edict_t* unitSelected; //NULL if none are selected
+	int isUnit; // 0 if enemy, 1 if ally
+	int selected; //0 if unit acted this turn
 };
 

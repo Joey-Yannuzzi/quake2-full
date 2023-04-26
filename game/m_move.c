@@ -115,6 +115,16 @@ qboolean SV_movestep (edict_t *ent, vec3_t move, qboolean relink)
 	{
 		return (false); //stops all monster movements
 	}
+	else if (ent->tempMove && ent->tempMove > 0)
+	{
+		gi.centerprintf(ent->owner, ent->unitType);
+		ent->tempMove--;
+	}
+	else
+	{
+		gi.centerprintf(ent->owner, "out of movement");
+		return (false);
+	}
 	float		dz;
 	vec3_t		oldorg, neworg, end;
 	trace_t		trace;
@@ -360,10 +370,7 @@ qboolean SV_StepDirection (edict_t *ent, float yaw, float dist)
 	{
 		return(false); //stops monster rotation
 	}
-	else
-	{
-		gi.centerprintf(ent->owner, "hello friend\n");
-	}
+
 	vec3_t		move, oldorigin;
 	float		delta;
 	

@@ -948,7 +948,7 @@ void Cmd_SpawnUnit_f(edict_t* ent)
 	{
 	case 1:
 		unit->unitType = "lord";
-		unit->move = 5;
+		unit->move = 50;
 		unit->lord = 1;
 		unit->defense = 2;
 		unit->resistance = 2;
@@ -957,7 +957,7 @@ void Cmd_SpawnUnit_f(edict_t* ent)
 		break;
 	case 2:
 		unit->unitType = "cavalier";
-		unit->move = 7;
+		unit->move = 100;
 		unit->mounted = 1;
 		unit->defense = 0;
 		unit->resistance = 10;
@@ -966,7 +966,7 @@ void Cmd_SpawnUnit_f(edict_t* ent)
 		break;
 	case 3:
 		unit->unitType = "knight";
-		unit->move = 4;
+		unit->move = 25;
 		unit->armored = 1;
 		unit->defense = 10;
 		unit->resistance = 0;
@@ -975,7 +975,7 @@ void Cmd_SpawnUnit_f(edict_t* ent)
 		break;
 	case 4:
 		unit->unitType = "fighter";
-		unit->move = 5;
+		unit->move = 50;
 		unit->defense = 3;
 		unit->resistance = 2;
 		unit->attack = 6;
@@ -983,7 +983,7 @@ void Cmd_SpawnUnit_f(edict_t* ent)
 		break;
 	case 5:
 		unit->unitType = "mage";
-		unit->move = 5;
+		unit->move = 50;
 		unit->magic = 1;
 		unit->defense = 1;
 		unit->resistance = 1;
@@ -995,6 +995,9 @@ void Cmd_SpawnUnit_f(edict_t* ent)
 		break;
 	}
 	unit->classname = "unit";
+	unit->isUnit = 1;
+	unit->tempMove = unit->move;
+	unit->selected = 1;
 }
 
 

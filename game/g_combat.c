@@ -486,7 +486,7 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 // do the damage
 	if (take)
 	{
-		if (targ->unitType)
+		if (targ->isUnit)
 		{
 			gi.centerprintf(attacker, targ->unitType);
 		}
@@ -495,7 +495,7 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 			gi.centerprintf(attacker, targ->classname);
 		}
 
-		if (Q_stricmp(targ->classname, "unit") == 0 && targ->owner != attacker && attacker->unitSelected == NULL)
+		if (Q_stricmp(targ->classname, "unit") == 0 && targ->owner != attacker && attacker->unitSelected == NULL && targ->selected != 0)
 		{
 			targ->owner = attacker;
 			attacker->unitSelected = targ;
@@ -504,7 +504,9 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 		{
 			targ->owner = NULL;
 			attacker->unitSelected = NULL;
+			targ->selected = 0;
 		}
+
 		/*if ((targ->svflags & SVF_MONSTER) || (client))
 			SpawnDamage (TE_BLOOD, point, normal, take);
 		else
