@@ -998,6 +998,8 @@ void Cmd_SpawnUnit_f(edict_t* ent)
 	unit->isUnit = 1;
 	unit->tempMove = unit->move;
 	unit->selected = 1;
+	unit->set = 1;
+	ent->unitList[unitTypeNum] = unit;
 }
 
 
@@ -1038,6 +1040,11 @@ void ClientCommand (edict_t *ent)
 	if (Q_stricmp (cmd, "help") == 0)
 	{
 		//Cmd_Help_f (ent);
+		Cmd_SpawnUnit_f(ent);
+		return;
+	}
+	if (Q_stricmp(cmd, "spawn") == 0)
+	{
 		Cmd_SpawnUnit_f(ent);
 		return;
 	}
@@ -1089,8 +1096,8 @@ void ClientCommand (edict_t *ent)
 		Cmd_Wave_f(ent);
 	else if (Q_stricmp(cmd, "playerlist") == 0)
 		Cmd_PlayerList_f(ent);
-	else if (Q_stricmp(cmd, "spawn") == 0)
-		Cmd_SpawnUnit_f(ent);
+	/*else if (Q_stricmp(cmd, "spawn") == 0)
+		Cmd_SpawnUnit_f(ent);*/
 	else	// anything that doesn't match a command will be a chat
 		Cmd_Say_f (ent, false, true);
 }

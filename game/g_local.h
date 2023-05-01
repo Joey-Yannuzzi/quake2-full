@@ -1123,5 +1123,8 @@ struct edict_s
 	edict_t* unitSelected; //NULL if none are selected
 	int isUnit; // 0 if enemy, 1 if ally
 	int selected; //0 if unit acted this turn
+	int set; //NULL if not set, must be set in monster_think()
+	edict_t* unitList[5];
+	int phase; // 1 if its their phase, useable by client only
 };
 

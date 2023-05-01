@@ -123,6 +123,7 @@ qboolean SV_movestep (edict_t *ent, vec3_t move, qboolean relink)
 	else
 	{
 		gi.centerprintf(ent->owner, "out of movement");
+		//ent->selected = 0;
 		return (false);
 	}
 	float		dz;

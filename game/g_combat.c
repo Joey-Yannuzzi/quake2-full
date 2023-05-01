@@ -486,25 +486,32 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 // do the damage
 	if (take)
 	{
-		if (targ->isUnit)
+		if (attacker->phase == 1)
 		{
-			gi.centerprintf(attacker, targ->unitType);
-		}
-		else
-		{
-			gi.centerprintf(attacker, targ->classname);
-		}
+			if (Q_stricmp(targ->classname, "enemy"))
+			{
+				gi.centerprintf(attacker, targ->classname);
+			}
+			else if (targ->isUnit)
+			{
+				gi.centerprintf(attacker, targ->unitType);
+			}
+			else
+			{
+				gi.centerprintf(attacker, targ->classname);
+			}
 
-		if (Q_stricmp(targ->classname, "unit") == 0 && targ->owner != attacker && attacker->unitSelected == NULL && targ->selected != 0)
-		{
-			targ->owner = attacker;
-			attacker->unitSelected = targ;
-		}
-		else if (Q_stricmp(targ->classname, "unit") == 0 && targ->owner == attacker)
-		{
-			targ->owner = NULL;
-			attacker->unitSelected = NULL;
-			targ->selected = 0;
+			if (Q_stricmp(targ->classname, "unit") == 0 && targ->owner != attacker && attacker->unitSelected == NULL && targ->selected != 0)
+			{
+				targ->owner = attacker;
+				attacker->unitSelected = targ;
+			}
+			else if (Q_stricmp(targ->classname, "unit") == 0 && targ->owner == attacker)
+			{
+				targ->owner = NULL;
+				attacker->unitSelected = NULL;
+				targ->selected = 0;
+			}
 		}
 
 		/*if ((targ->svflags & SVF_MONSTER) || (client))

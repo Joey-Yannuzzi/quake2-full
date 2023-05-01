@@ -427,6 +427,21 @@ void monster_think (edict_t *self)
 	M_CatagorizePosition (self);
 	M_WorldEffects (self);
 	M_SetEffects (self);
+
+	if (!self->set)
+	{
+		self->unitType = "fighter";
+		self->move = 50;
+		self->defense = 3;
+		self->resistance = 2;
+		self->attack = 6;
+		self->unitSpeed = 10;
+		self->classname = "enemy";
+		self->isUnit = 0;
+		self->tempMove = self->move;
+		self->selected = 0;
+		self->set = 1;
+	}
 }
 
 
