@@ -1125,6 +1125,8 @@ struct edict_s
 	int selected; //0 if unit acted this turn
 	int set; //NULL if not set, must be set in monster_think()
 	edict_t* unitList[5];
-	int phase; // 1 if its their phase, useable by client only
+	int phase; // 1 if its their phase
+	edict_t* playerController; //stores edict of player for enemy
+	edict_t* enemyList[4];
 };
 

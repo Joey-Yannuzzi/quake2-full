@@ -415,7 +415,7 @@ void M_MoveFrame (edict_t *self)
 		move->frame[index].thinkfunc (self);
 }
 
-
+int enemyCount = 0;
 void monster_think (edict_t *self)
 {
 	M_MoveFrame (self);
@@ -430,17 +430,65 @@ void monster_think (edict_t *self)
 
 	if (!self->set)
 	{
+		enemyCount++;
 		self->unitType = "fighter";
 		self->move = 50;
 		self->defense = 3;
 		self->resistance = 2;
 		self->attack = 6;
 		self->unitSpeed = 10;
-		self->classname = "enemy";
+		itoa(enemyCount, self->classname, 10);
+
+		if (Q_stricmp(self->classname, "14") == 0)
+		{
+			self->classname = "enemy";
+			g_edicts->enemyList[0] = self;
+		}
+		else if (Q_stricmp(self->classname, "4") == 0)
+		{
+			self->classname = "enemy";
+			g_edicts->enemyList[1] = self;
+		}
+		else if (Q_stricmp(self->classname, "2") == 0)
+		{
+			self->classname = "enemy";
+			g_edicts->enemyList[2] = self;
+		}
+		else if (Q_stricmp(self->classname, "13") == 0)
+		{
+			self->classname = "enemy";
+			g_edicts->enemyList[3] = self;
+		}
 		self->isUnit = 0;
 		self->tempMove = self->move;
 		self->selected = 0;
 		self->set = 1;
+		self->phase = 0;
+	}
+	/*if (self->client->chase_target != NULL && self->client->chase_target->phase != NULL && self->client->chase_target->phase == 0 && self->phase != 1)
+	{
+		self->phase = 1;
+		self->selected = 1;
+		gi.centerprintf(self->client->chase_target, "enemy's phase");
+	}
+	if ((g_edicts + 1)->inuse && (g_edicts + 1) == self->enemy)
+	{
+		gi.centerprintf(g_edicts + 1, self->unitType);
+	}*/
+
+	if ((g_edicts + 1) == self->enemy && (g_edicts + 1)->phase == 0)
+	{
+		//gi.centerprintf(g_edicts + 1, "enemy phase");
+		self->phase = 1;
+		self->selected = 1;
+		/*for (int bogus = 0; bogus < 360; bogus++)
+		{
+			if (Q_stricmp((g_edicts + bogus)->classname, "unit") && Q_stricmp((g_edicts + bogus)->unitType, "lord"))
+			{
+				self->enemy = g_edicts + bogus;
+			}
+		}*/
+		//gi.centerprintf(g_edicts + 1, "Enemy Phase");
 	}
 }
 

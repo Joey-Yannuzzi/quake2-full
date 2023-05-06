@@ -1578,7 +1578,7 @@ void PhaseCheck(edict_t* ent)
 		}
 	}
 
-	switch (sum)
+	/*switch(sum)
 	{
 	case 0:
 		gi.centerprintf(ent, "0");
@@ -1600,7 +1600,7 @@ void PhaseCheck(edict_t* ent)
 		break;
 	default:
 		gi.centerprintf(ent, "error");
-	}
+	}*/
 	if (sum > 1)
 	{
 		ent->phase = 1;
@@ -1608,8 +1608,26 @@ void PhaseCheck(edict_t* ent)
 	else
 	{
 		ent->phase = 0;
-		gi.centerprintf(ent, "enemy's phase");
 	}
+}
+
+int enemyCheck(edict_t* ent)
+{
+	edict_t* nextEdict = g_edicts;
+	int count = 0;
+	while (count < 360)
+	{
+		count++;
+		nextEdict = g_edicts + count;
+		if (Q_stricmp(nextEdict->classname, "enemy") && nextEdict->selected == 1 && nextEdict->enemy == ent)
+		{
+			gi.centerprintf(ent, nextEdict->classname);
+			return (0);
+		}
+	}
+
+	//gi.centerprintf(ent, "player phase");
+	return (1);
 }
 /*
 ==============
@@ -1795,6 +1813,30 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 	}
 
 	PhaseCheck(ent);
+
+	//gi.centerprintf(ent, (g_edicts + 301)->classname);//292-300
+	//(g_edicts + 298)->classname = "myEnemy";//found: 295, 296
+	if (ent->phase == 0)
+	{
+		int check = enemyCheck(ent);
+
+		if (check == 0)
+		{
+			gi.centerprintf(ent, "enemy phase");
+		}
+		else
+		{
+			//gi.centerprintf(ent, "player phase");
+			//ent->phase = 1;
+			for (int bogus = 0; bogus < 5; bogus++)
+			{
+				ent->unitList[bogus]->tempMove = ent->unitList[bogus]->move;
+			}
+			//ent->phase = 1;
+		}
+	}
+
+	//gi.centerprintf(ent, (g_edicts + 360)->classname); // level 1 has max of 360 entities
 }
 
 
