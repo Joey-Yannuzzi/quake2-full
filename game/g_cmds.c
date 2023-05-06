@@ -989,6 +989,7 @@ void Cmd_SpawnUnit_f(edict_t* ent)
 		unit->resistance = 1;
 		unit->attack = 6;
 		unit->unitSpeed = 7;
+		ent->phase = 1;
 		break;
 	default:
 		unit->unitType = NULL;

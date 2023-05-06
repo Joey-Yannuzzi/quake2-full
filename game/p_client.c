@@ -1608,26 +1608,27 @@ void PhaseCheck(edict_t* ent)
 	else
 	{
 		ent->phase = 0;
+		g_edicts->phase = 1;
+		gi.centerprintf(ent, "Enemy Phase");
 	}
 }
 
-int enemyCheck(edict_t* ent)
+void phaseRestart(edict_t* ent)
 {
-	edict_t* nextEdict = g_edicts;
-	int count = 0;
-	while (count < 360)
+	ent->phase = 1;
+	for (int bogus = 0; bogus < 5; bogus++)
 	{
-		count++;
-		nextEdict = g_edicts + count;
-		if (Q_stricmp(nextEdict->classname, "enemy") && nextEdict->selected == 1 && nextEdict->enemy == ent)
-		{
-			gi.centerprintf(ent, nextEdict->classname);
-			return (0);
-		}
+		ent->unitList[bogus]->tempMove = ent->unitList[bogus]->move;
+		ent->unitList[bogus]->selected = 1;
 	}
 
-	//gi.centerprintf(ent, "player phase");
-	return (1);
+	for (int bogus = 0; bogus < 4; bogus++)
+	{
+		g_edicts->enemyList[bogus]->tempMove = g_edicts->enemyList[bogus]->move;
+		g_edicts->enemyList[bogus]->selected = 1;
+	}
+
+	gi.centerprintf(ent, "I am running");
 }
 /*
 ==============
@@ -1812,31 +1813,33 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 			UpdateChaseCam(other);
 	}
 
-	PhaseCheck(ent);
-
-	//gi.centerprintf(ent, (g_edicts + 301)->classname);//292-300
-	//(g_edicts + 298)->classname = "myEnemy";//found: 295, 296
-	if (ent->phase == 0)
+	if (ent->phase)
 	{
-		int check = enemyCheck(ent);
-
-		if (check == 0)
+		if (ent->phase == 1)
 		{
-			gi.centerprintf(ent, "enemy phase");
+			//gi.centerprintf(ent, "phase: 1");
+			PhaseCheck(ent);
+		}
+		else if (ent->phase == 0)
+		{
+			//gi.centerprintf(ent, "phase: 0");
 		}
 		else
 		{
-			//gi.centerprintf(ent, "player phase");
-			//ent->phase = 1;
-			for (int bogus = 0; bogus < 5; bogus++)
-			{
-				ent->unitList[bogus]->tempMove = ent->unitList[bogus]->move;
-			}
-			//ent->phase = 1;
+			ent->phase = 1;
+			char buffer[sizeof(int) * 8 + 1];
+			itoa(ent->phase, buffer, 10);
+			gi.centerprintf(ent, buffer);
+		}
+
+		if (ent->phase == 0 && g_edicts->phase == 0)
+		{
+			phaseRestart(ent);
 		}
 	}
 
-	//gi.centerprintf(ent, (g_edicts + 360)->classname); // level 1 has max of 360 entities
+	//gi.centerprintf(ent, (g_edicts + 301)->classname);//292-300
+	//(g_edicts + 298)->classname = "myEnemy";//found: 295, 296
 }
 
 

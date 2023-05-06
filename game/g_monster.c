@@ -415,6 +415,26 @@ void M_MoveFrame (edict_t *self)
 		move->frame[index].thinkfunc (self);
 }
 
+int checkPhase()
+{
+	int res = 0;
+	for (int bogus; bogus < 4; bogus++)
+	{
+		res += g_edicts->enemyList[bogus]->selected;
+	}
+
+	char buffer[sizeof(int) * 8 + 1];
+	itoa(res, buffer, 10);
+	gi.centerprintf(g_edicts + 1, buffer);
+	return (res);
+}
+
+void swapMonster(edict_t* self)
+{
+	g_edicts->unitSelected = self;
+	self->owner = g_edicts;
+}
+
 int enemyCount = 0;
 void monster_think (edict_t *self)
 {
@@ -443,6 +463,7 @@ void monster_think (edict_t *self)
 		{
 			self->classname = "enemy";
 			g_edicts->enemyList[0] = self;
+			g_edicts->phase = 0;
 		}
 		else if (Q_stricmp(self->classname, "4") == 0)
 		{
@@ -461,34 +482,23 @@ void monster_think (edict_t *self)
 		}
 		self->isUnit = 0;
 		self->tempMove = self->move;
-		self->selected = 0;
+		self->selected = 1;
 		self->set = 1;
-		self->phase = 0;
 	}
-	/*if (self->client->chase_target != NULL && self->client->chase_target->phase != NULL && self->client->chase_target->phase == 0 && self->phase != 1)
-	{
-		self->phase = 1;
-		self->selected = 1;
-		gi.centerprintf(self->client->chase_target, "enemy's phase");
-	}
-	if ((g_edicts + 1)->inuse && (g_edicts + 1) == self->enemy)
-	{
-		gi.centerprintf(g_edicts + 1, self->unitType);
-	}*/
 
-	if ((g_edicts + 1) == self->enemy && (g_edicts + 1)->phase == 0)
+	if (g_edicts->phase == 1 && g_edicts->unitSelected == NULL && Q_stricmp(self->classname, "enemy") == 0)
 	{
-		//gi.centerprintf(g_edicts + 1, "enemy phase");
-		self->phase = 1;
-		self->selected = 1;
-		/*for (int bogus = 0; bogus < 360; bogus++)
+		if (checkPhase() == 0)
 		{
-			if (Q_stricmp((g_edicts + bogus)->classname, "unit") && Q_stricmp((g_edicts + bogus)->unitType, "lord"))
-			{
-				self->enemy = g_edicts + bogus;
-			}
-		}*/
-		//gi.centerprintf(g_edicts + 1, "Enemy Phase");
+			gi.centerprintf(g_edicts + 1, "changing phase");
+			g_edicts->phase = 0;
+			//(g_edicts + 1)->phase = 1;
+		}
+		else if (self->selected == 1)
+		{
+			gi.centerprintf(g_edicts + 1, "selecting enemy");
+			swapMonster(self);
+		}
 	}
 }
 

@@ -488,10 +488,10 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 	{
 		if (attacker->phase == 1)
 		{
-			if (Q_stricmp(targ->classname, "enemy"))
+			if (Q_stricmp(targ->classname, "enemy") == 0)
 			{
 				gi.centerprintf(attacker, targ->classname);
-				targ->playerController = attacker;
+				//targ->playerController = attacker;
 			}
 			else if (targ->isUnit)
 			{

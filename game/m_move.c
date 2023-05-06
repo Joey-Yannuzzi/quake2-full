@@ -113,31 +113,35 @@ qboolean SV_movestep (edict_t *ent, vec3_t move, qboolean relink)
 {
 	if (ent->owner == NULL)
 	{
-		if (ent->isUnit == 1)
-		{
-			return (false);
-		} //stops all monster movements
-		else if (ent->selected == 1 && ent->phase == 1 && ent->tempMove > 0)
+		return (false); //stops all monster movements
+	}
+	else if (Q_stricmp(ent->classname, "unit") == 0)
+	{
+		if (ent->tempMove && ent->tempMove > 0)
 		{
 			ent->tempMove--;
 		}
-		else if (ent->tempMove <= 0)
+		else
 		{
-			ent->selected = 0;
+			gi.centerprintf(ent->owner, "out of movement");
 			return (false);
 		}
 	}
-	else if (ent->tempMove && ent->tempMove > 0)
+	else if (Q_stricmp(ent->classname, "enemy") == 0)
 	{
-		gi.centerprintf(ent->owner, ent->unitType);
-		ent->tempMove--;
+		if (ent->tempMove && ent->tempMove > 0)
+		{
+			ent->tempMove--;
+		}
+		else
+		{
+			ent->selected = 0;
+			ent->owner = NULL;
+			g_edicts->unitSelected = NULL;
+			return (false);
+		}
 	}
-	else
-	{
-		gi.centerprintf(ent->owner, "out of movement");
-		//ent->selected = 0;
-		return (false);
-	}
+
 	float		dz;
 	vec3_t		oldorg, neworg, end;
 	trace_t		trace;
@@ -381,10 +385,7 @@ qboolean SV_StepDirection (edict_t *ent, float yaw, float dist)
 {
 	if (ent->owner == NULL)
 	{
-		if (ent->isUnit == 1 || ent->phase == 0)
-		{
-			return(false); //stops monster rotation
-		}
+		return (false);
 	}
 
 	vec3_t		move, oldorigin;
