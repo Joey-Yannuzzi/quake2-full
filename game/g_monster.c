@@ -507,6 +507,10 @@ void monster_think (edict_t *self)
 			self->classname = "enemy";
 			g_edicts->enemyList[3] = self;
 		}
+		else
+		{
+			Killed(self, g_edicts, g_edicts, 1, vec3_origin);
+		}
 
 		self->isUnit = 0;
 		self->tempMove = self->move;

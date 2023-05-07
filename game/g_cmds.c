@@ -1040,8 +1040,8 @@ void ClientCommand (edict_t *ent)
 	}
 	if (Q_stricmp (cmd, "help") == 0)
 	{
-		//Cmd_Help_f (ent);
-		Cmd_SpawnUnit_f(ent);
+		Cmd_Help_f (ent);
+		//Cmd_SpawnUnit_f(ent);
 		return;
 	}
 	if (Q_stricmp(cmd, "spawn") == 0)
