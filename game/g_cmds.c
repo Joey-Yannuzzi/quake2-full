@@ -1024,6 +1024,74 @@ void Cmd_Forge_f(edict_t* ent)
 	gi.centerprintf(ent, "Weapon Forged");
 }
 
+void Cmd_North_f(edict_t* ent)
+{
+	vec3_t dir = { 100, 0, 0 };
+	VectorAdd(ent->s.origin, dir, dir);
+	VectorCopy(dir, ent->s.origin);
+}
+void Cmd_South_f(edict_t* ent)
+{
+	vec3_t dir = { -100, 0, 0 };
+	VectorAdd(ent->s.origin, dir, dir);
+	VectorCopy(dir, ent->s.origin);
+}
+void Cmd_Left_f(edict_t* ent)
+{
+	vec3_t dir = { 0, -100, 0 };
+	VectorAdd(ent->s.origin, dir, dir);
+	VectorCopy(dir, ent->s.origin);
+}
+void Cmd_Right_f(edict_t* ent)
+{
+	vec3_t dir = { 0, 100, 0 };
+	VectorAdd(ent->s.origin, dir, dir);
+	VectorCopy(dir, ent->s.origin);
+}
+
+void Cmd_Grid_f(edict_t* ent, char* cmd)
+{
+	//vec3_t dir = { 0, 0, 0 };
+	vec3_t	forward, right;
+	vec3_t	start;
+	vec3_t	offset;
+	//gi.centerprintf(ent, "spawning unit");
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
+	VectorSet(offset, 24, 8, ent->viewheight - 8);
+	VectorAdd(offset, vec3_origin, offset);
+	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
+	VectorScale(forward, -2, ent->client->kick_origin);
+	if (Q_stricmp(cmd, "forward") == 0)
+	{
+		for (int bogus = 0; bogus < 100; bogus++)
+		{
+			VectorAdd(forward, start, start);
+		}
+	}
+	else if (Q_stricmp(cmd, "back") == 0)
+	{
+		for (int bogus = 0; bogus < 100; bogus++)
+		{
+			VectorAdd(forward, start, start);
+		}
+		VectorNegate(start, start);
+	}
+	else if (Q_stricmp(cmd, "left") == 0)
+	{
+		
+	}
+	else if (Q_stricmp(cmd, "right") == 0)
+	{
+
+	}
+	else
+	{
+		return;
+	}
+
+	VectorCopy(start, ent->s.origin);
+}
+
 
 /*
 =================
@@ -1075,6 +1143,37 @@ void ClientCommand (edict_t *ent)
 		Cmd_Forge_f(ent);
 		return;
 	}
+	/*if (Q_stricmp(cmd, "south") == 0)
+	{
+		Cmd_North_f(ent);
+		return;
+	}
+	if (Q_stricmp(cmd, "north") == 0)
+	{
+		Cmd_South_f(ent);
+		return;
+	}
+	if (Q_stricmp(cmd, "left") == 0)
+	{
+		Cmd_Left_f(ent);
+		return;
+	}
+	if (Q_stricmp(cmd, "right") == 0)
+	{
+		Cmd_Right_f(ent);
+		return;
+	}*/
+
+	if (Q_stricmp(cmd, "forward") == 0)
+	{
+		Cmd_Grid_f(ent, cmd);
+		return;
+	}
+	/*if (Q_stricmp(cmd, "back"))
+	{
+		Cmd_Grid_f(ent, cmd);
+		return;
+	}*/
 
 	if (level.intermissiontime)
 		return;
