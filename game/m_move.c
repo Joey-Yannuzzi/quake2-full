@@ -138,6 +138,7 @@ qboolean SV_movestep (edict_t *ent, vec3_t move, qboolean relink)
 			ent->selected = 0;
 			ent->owner = NULL;
 			g_edicts->unitSelected = NULL;
+			gi.centerprintf(g_edicts + 1, "enemy stopped");
 			return (false);
 		}
 	}

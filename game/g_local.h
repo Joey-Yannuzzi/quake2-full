@@ -1128,5 +1128,6 @@ struct edict_s
 	int phase; // 1 if its their phase
 	edict_t* playerController; //stores edict of player for enemy
 	edict_t* enemyList[4];
+	int phaseChanged; //for worldspawn to deal with enemies
 };
 

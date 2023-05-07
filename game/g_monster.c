@@ -415,25 +415,52 @@ void M_MoveFrame (edict_t *self)
 		move->frame[index].thinkfunc (self);
 }
 
-int checkPhase()
-{
-	int res = 0;
-	for (int bogus; bogus < 4; bogus++)
-	{
-		res += g_edicts->enemyList[bogus]->selected;
-	}
-
-	char buffer[sizeof(int) * 8 + 1];
-	itoa(res, buffer, 10);
-	gi.centerprintf(g_edicts + 1, buffer);
-	return (res);
-}
-
 void swapMonster(edict_t* self)
 {
 	g_edicts->unitSelected = self;
 	self->owner = g_edicts;
 }
+
+/*
+============
+Killed taken from g_combat.c
+============
+*/
+/*void Killed(edict_t* targ, edict_t* inflictor, edict_t* attacker, int damage, vec3_t point)
+{
+	if (targ->health < -999)
+		targ->health = -999;
+
+	targ->enemy = attacker;
+
+	if ((targ->svflags & SVF_MONSTER) && (targ->deadflag != DEAD_DEAD))
+	{
+		//		targ->svflags |= SVF_DEADMONSTER;	// now treat as a different content type
+		if (!(targ->monsterinfo.aiflags & AI_GOOD_GUY))
+		{
+			level.killed_monsters++;
+			if (coop->value && attacker->client)
+				attacker->client->resp.score++;
+			// medics won't heal monsters that they kill themselves
+			if (strcmp(attacker->classname, "monster_medic") == 0)
+				targ->owner = attacker;
+		}
+	}
+
+	if (targ->movetype == MOVETYPE_PUSH || targ->movetype == MOVETYPE_STOP || targ->movetype == MOVETYPE_NONE)
+	{	// doors, triggers, etc
+		targ->die(targ, inflictor, attacker, damage, point);
+		return;
+	}
+
+	if ((targ->svflags & SVF_MONSTER) && (targ->deadflag != DEAD_DEAD))
+	{
+		targ->touch = NULL;
+		monster_death_use(targ);
+	}
+
+	targ->die(targ, inflictor, attacker, damage, point);
+}*/
 
 int enemyCount = 0;
 void monster_think (edict_t *self)
@@ -463,7 +490,7 @@ void monster_think (edict_t *self)
 		{
 			self->classname = "enemy";
 			g_edicts->enemyList[0] = self;
-			g_edicts->phase = 0;
+			g_edicts->phase = 1;
 		}
 		else if (Q_stricmp(self->classname, "4") == 0)
 		{
@@ -480,24 +507,21 @@ void monster_think (edict_t *self)
 			self->classname = "enemy";
 			g_edicts->enemyList[3] = self;
 		}
+
 		self->isUnit = 0;
 		self->tempMove = self->move;
 		self->selected = 1;
 		self->set = 1;
+		//g_edicts->phaseChanged = 0;
 	}
 
-	if (g_edicts->phase == 1 && g_edicts->unitSelected == NULL && Q_stricmp(self->classname, "enemy") == 0)
+	//gi.centerprintf(g_edicts + 1, "outside enemy loop");
+	if ((g_edicts + 1)->phase == 2 && g_edicts->unitSelected == NULL && Q_stricmp(self->classname, "enemy") == 0)
 	{
-		if (checkPhase() == 0)
+		if (self->selected && self->selected == 1)
 		{
-			gi.centerprintf(g_edicts + 1, "changing phase");
-			g_edicts->phase = 0;
-			//(g_edicts + 1)->phase = 1;
-		}
-		else if (self->selected == 1)
-		{
-			gi.centerprintf(g_edicts + 1, "selecting enemy");
 			swapMonster(self);
+			gi.centerprintf(g_edicts + 1, "selecting enemy");
 		}
 	}
 }

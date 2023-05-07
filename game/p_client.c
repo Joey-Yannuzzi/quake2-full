@@ -1572,10 +1572,6 @@ void PhaseCheck(edict_t* ent)
 		{
 			sum += ent->unitList[bogus]->selected;
 		}
-		else
-		{
-			sum++;
-		}
 	}
 
 	/*switch(sum)
@@ -1601,34 +1597,58 @@ void PhaseCheck(edict_t* ent)
 	default:
 		gi.centerprintf(ent, "error");
 	}*/
-	if (sum > 1)
+	if (sum > 0)
 	{
 		ent->phase = 1;
 	}
 	else
 	{
-		ent->phase = 0;
-		g_edicts->phase = 1;
+		ent->phase = 2;
+		//g_edicts->phase = 2;
 		gi.centerprintf(ent, "Enemy Phase");
 	}
 }
 
 void phaseRestart(edict_t* ent)
 {
+	//gi.centerprintf(ent, "setting phase");
 	ent->phase = 1;
+	//gi.centerprintf(ent, "start");
 	for (int bogus = 0; bogus < 5; bogus++)
 	{
-		ent->unitList[bogus]->tempMove = ent->unitList[bogus]->move;
-		ent->unitList[bogus]->selected = 1;
+		if (ent->unitList[bogus])
+		{
+			ent->unitList[bogus]->tempMove = ent->unitList[bogus]->move;
+			ent->unitList[bogus]->selected = 1;
+		}
 	}
+
+	//gi.centerprintf(ent, "first loop done");
 
 	for (int bogus = 0; bogus < 4; bogus++)
 	{
-		g_edicts->enemyList[bogus]->tempMove = g_edicts->enemyList[bogus]->move;
-		g_edicts->enemyList[bogus]->selected = 1;
+		if (g_edicts->enemyList[bogus])
+		{
+			g_edicts->enemyList[bogus]->tempMove = g_edicts->enemyList[bogus]->move;
+			g_edicts->enemyList[bogus]->selected = 1;
+		}
 	}
 
-	gi.centerprintf(ent, "I am running");
+	//g_edicts->phaseChanged = 0;
+	//gi.centerprintf(ent, "second loop done");
+}
+
+int checkPhase()
+{
+	int res = 0;
+	for (int bogus = 0; bogus < 4; bogus++)
+	{
+		/*char buffer[sizeof(int) * 8 + 1];
+		itoa(g_edicts->enemyList[bogus]->selected, buffer, 10);
+		gi.centerprintf(g_edicts + 1, buffer);*/
+		res += g_edicts->enemyList[bogus]->selected;
+	}
+	return (res);
 }
 /*
 ==============
@@ -1813,6 +1833,7 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 			UpdateChaseCam(other);
 	}
 
+	//gi.centerprintf(ent, "outside phase stuff");
 	if (ent->phase)
 	{
 		if (ent->phase == 1)
@@ -1820,26 +1841,36 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 			//gi.centerprintf(ent, "phase: 1");
 			PhaseCheck(ent);
 		}
-		else if (ent->phase == 0)
+		else if (ent->phase == 2)
 		{
 			//gi.centerprintf(ent, "phase: 0");
 		}
 		else
 		{
+			gi.centerprintf(ent, "fixing phase");
 			ent->phase = 1;
 			char buffer[sizeof(int) * 8 + 1];
 			itoa(ent->phase, buffer, 10);
 			gi.centerprintf(ent, buffer);
 		}
 
-		if (ent->phase == 0 && g_edicts->phase == 0)
+		if (ent->phase == 2 && checkPhase() == 0)
 		{
+			//ent->phase = 1;
+			gi.centerprintf(ent, "player phase");
 			phaseRestart(ent);
 		}
 	}
 
-	//gi.centerprintf(ent, (g_edicts + 301)->classname);//292-300
-	//(g_edicts + 298)->classname = "myEnemy";//found: 295, 296
+	/*if (g_edicts->phase && g_edicts->phase == 2)
+	{
+		//gi.centerprintf(g_edicts + 1, "changing phase");
+		if (checkPhase() == 0)
+		{
+			gi.centerprintf(ent, "before");
+			g_edicts->phase--;
+		}
+	}*/
 }
 
 
