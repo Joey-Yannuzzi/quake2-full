@@ -1000,6 +1000,7 @@ void Cmd_SpawnUnit_f(edict_t* ent)
 	unit->tempMove = unit->move;
 	unit->selected = 1;
 	unit->set = 1;
+	unit->dead = 1;
 	ent->unitList[unitTypeNum] = unit;
 }
 

@@ -1132,5 +1132,7 @@ struct edict_s
 	int phaseChanged; //for worldspawn to deal with enemies
 	int money; //player money
 	int moneySet; //set to 1 if money has been set
+	int attacked; //NULL if not attacked this turn
+	int dead; //NULL if dead
 };
 

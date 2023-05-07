@@ -1620,6 +1620,7 @@ void phaseRestart(edict_t* ent)
 		{
 			ent->unitList[bogus]->tempMove = ent->unitList[bogus]->move;
 			ent->unitList[bogus]->selected = 1;
+			ent->unitList[bogus]->attacked = 0;
 		}
 	}
 
@@ -1649,6 +1650,24 @@ int checkPhase()
 		res += g_edicts->enemyList[bogus]->selected;
 	}
 	return (res);
+}
+
+void checkVictory(edict_t* ent)
+{
+	int sum = 0;
+	
+	for (int bogus = 0; bogus < 4; bogus++)
+	{
+		if (g_edicts->enemyList[bogus])
+		{
+			sum += g_edicts->enemyList[bogus]->dead;
+		}
+	}
+
+	if (sum == 0)
+	{
+		gi.centerprintf(ent, "VICTORY!");
+	}
 }
 /*
 ==============
@@ -1867,15 +1886,7 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 		}
 	}
 
-	/*if (g_edicts->phase && g_edicts->phase == 2)
-	{
-		//gi.centerprintf(g_edicts + 1, "changing phase");
-		if (checkPhase() == 0)
-		{
-			gi.centerprintf(ent, "before");
-			g_edicts->phase--;
-		}
-	}*/
+	checkVictory(ent);
 }
 
 

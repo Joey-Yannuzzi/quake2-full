@@ -319,7 +319,7 @@ void HelpComputer (edict_t *ent)
 	{
 		if (g_edicts->enemyList[bogus])
 		{
-			enemyCount++;
+			enemyCount += g_edicts->enemyList[bogus]->dead;
 		}
 	}
 	Com_sprintf(string, sizeof(string),

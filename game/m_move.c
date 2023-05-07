@@ -129,7 +129,7 @@ qboolean SV_movestep (edict_t *ent, vec3_t move, qboolean relink)
 	}
 	else if (Q_stricmp(ent->classname, "enemy") == 0)
 	{
-		if (ent->tempMove && ent->tempMove > 0)
+		if (ent->tempMove && ent->tempMove > 0 && ent->dead == 1)
 		{
 			ent->tempMove--;
 		}

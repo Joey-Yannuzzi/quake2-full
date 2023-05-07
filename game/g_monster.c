@@ -516,6 +516,7 @@ void monster_think (edict_t *self)
 		self->tempMove = self->move;
 		self->selected = 1;
 		self->set = 1;
+		self->dead = 1;
 		//g_edicts->phaseChanged = 0;
 	}
 
