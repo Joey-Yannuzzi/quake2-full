@@ -1003,6 +1003,26 @@ void Cmd_SpawnUnit_f(edict_t* ent)
 	ent->unitList[unitTypeNum] = unit;
 }
 
+void Cmd_Forge_f(edict_t* ent)
+{
+	int price = 100;
+	if (!ent->unitSelected)
+	{
+		gi.centerprintf(ent, "No unit selected");
+		return;
+	}
+
+	if (ent->money < price)
+	{
+		gi.centerprintf(ent, "Insufficient funds");
+		return;
+	}
+
+	ent->money -= price;
+	ent->unitSelected->attack *= 2;
+	gi.centerprintf(ent, "Weapon Forged");
+}
+
 
 /*
 =================
@@ -1047,6 +1067,11 @@ void ClientCommand (edict_t *ent)
 	if (Q_stricmp(cmd, "spawn") == 0)
 	{
 		Cmd_SpawnUnit_f(ent);
+		return;
+	}
+	if (Q_stricmp(cmd, "forge") == 0)
+	{
+		Cmd_Forge_f(ent);
 		return;
 	}
 

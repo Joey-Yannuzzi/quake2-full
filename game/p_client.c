@@ -1660,8 +1660,9 @@ usually be a couple times for each server frame.
 */
 void ClientThink (edict_t *ent, usercmd_t *ucmd)
 {
-	if (!ent->money)
+	if (!ent->moneySet)
 	{
+		ent->moneySet = 1;
 		ent->money = 1000;
 	}
 	gclient_t	*client;

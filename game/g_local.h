@@ -1131,5 +1131,6 @@ struct edict_s
 	edict_t* enemyList[4];
 	int phaseChanged; //for worldspawn to deal with enemies
 	int money; //player money
+	int moneySet; //set to 1 if money has been set
 };
 

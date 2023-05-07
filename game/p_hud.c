@@ -333,7 +333,7 @@ void HelpComputer (edict_t *ent)
 		"Help",//sk,
 		"Quake Emblem",//level.level_name,
 		"Move and attack enemies\nwith your units\nand defeat all the enemies\nControls:\nF to spawn your units\nShoot the units\nto get them",//game.helpmessage1,
-		" to move\nB while a unit is selected\nto upgrade their weapon",//game.helpmessage2,
+		" to move\nM while a unit is selected\nto upgrade their weapon",//game.helpmessage2,
 		4 - enemyCount, 4,//level.killed_monsters, level.total_monsters, 
 		level.found_goals, level.total_goals,
 		ent->money, NULL);//level.found_secrets, level.total_secrets);
