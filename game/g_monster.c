@@ -526,7 +526,7 @@ void monster_think (edict_t *self)
 		if (self->selected && self->selected == 1)
 		{
 			swapMonster(self);
-			gi.centerprintf(g_edicts + 1, "selecting enemy");
+			//gi.centerprintf(g_edicts + 1, "selecting enemy");
 		}
 	}
 }

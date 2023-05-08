@@ -548,7 +548,6 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 				targ->health -= damage;
 				char buffer[sizeof(int) * 8 + 1];
 				itoa(damage, buffer, 10);
-				gi.centerprintf(attacker, buffer);
 
 				if (targ->health < 1)
 				{
@@ -559,10 +558,14 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 				}
 				else
 				{
+					char buff2[sizeof(int) * 8 + 1];
+					itoa(damageBack, buff2, 10);
+					gi.centerprintf(attacker, "Dealt %s damage and Took %s damage", buffer, buff2);
 					attacker->unitSelected->health -= damageBack;
 
 					if (attacker->unitSelected->health < 1)
 					{
+						attacker->unitSelected->dead = 0;
 						Killed(attacker->unitSelected, targ, targ, damageBack, vec3_origin);
 						gi.centerprintf(attacker, "unit died");
 					}

@@ -989,7 +989,6 @@ void Cmd_SpawnUnit_f(edict_t* ent)
 		unit->resistance = 1;
 		unit->attack = 6;
 		unit->unitSpeed = 7;
-		ent->phase = 1;
 		break;
 	default:
 		unit->unitType = NULL;
@@ -1002,6 +1001,12 @@ void Cmd_SpawnUnit_f(edict_t* ent)
 	unit->set = 1;
 	unit->dead = 1;
 	ent->unitList[unitTypeNum] = unit;
+
+	if (unitTypeNum == 5)
+	{
+		ent->phase = 1;
+		gi.centerprintf(ent, "Player Phase");
+	}
 }
 
 void Cmd_Forge_f(edict_t* ent)

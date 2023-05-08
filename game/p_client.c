@@ -1871,11 +1871,11 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 		}
 		else
 		{
-			gi.centerprintf(ent, "fixing phase");
+			//gi.centerprintf(ent, "fixing phase");
 			ent->phase = 1;
 			char buffer[sizeof(int) * 8 + 1];
 			itoa(ent->phase, buffer, 10);
-			gi.centerprintf(ent, buffer);
+			//gi.centerprintf(ent, buffer);
 		}
 
 		if (ent->phase == 2 && checkPhase() == 0)
