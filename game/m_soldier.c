@@ -1192,7 +1192,10 @@ void soldier_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int dama
 		self->monsterinfo.currentmove = &soldier_move_death6;
 }
 
-
+void testFunct(edict_t* self)
+{
+	gi.centerprintf(self, "testing");
+}
 //
 // SPAWN
 //
@@ -1220,9 +1223,9 @@ void SP_monster_soldier_x (edict_t *self)
 	self->monsterinfo.stand = soldier_stand;
 	self->monsterinfo.walk = soldier_walk;
 	self->monsterinfo.run = soldier_run;
-	self->monsterinfo.dodge = soldier_dodge;
-	self->monsterinfo.attack = soldier_attack;
-	self->monsterinfo.melee = NULL;
+	self->monsterinfo.dodge = NULL; //soldier.dodge
+	self->monsterinfo.attack = NULL; //soldier.attack
+	self->monsterinfo.melee = soldier_attack; //NULL
 	self->monsterinfo.sight = soldier_sight;
 
 	gi.linkentity (self);

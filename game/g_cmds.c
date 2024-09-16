@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 #include "g_local.h"
 #include "m_player.h"
+#include "m_soldier.h"
 
 
 char *ClientTeam (edict_t *ent)
@@ -899,6 +900,203 @@ void Cmd_PlayerList_f(edict_t *ent)
 	gi.cprintf(ent, PRINT_HIGH, "%s", text);
 }
 
+//taken from p_weapon.c
+static void P_ProjectSource(gclient_t* client, vec3_t point, vec3_t distance, vec3_t forward, vec3_t right, vec3_t result)
+{
+	vec3_t	_distance;
+
+	VectorCopy(distance, _distance);
+	if (client->pers.hand == LEFT_HANDED)
+		_distance[1] *= -1;
+	else if (client->pers.hand == CENTER_HANDED)
+		_distance[1] = 0;
+	G_ProjectSource(point, _distance, forward, right, result);
+}
+
+int unitTypeNum = 0;
+void Cmd_SpawnUnit_f(edict_t* ent)
+{
+	unitTypeNum++;
+
+	if (unitTypeNum > 5)
+	{
+		gi.centerprintf(ent, "Max units spawned");
+		return;
+	}
+
+	vec3_t	forward, right;
+	vec3_t	start;
+	vec3_t	offset;
+	gi.centerprintf(ent, "spawning unit");
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
+	VectorSet(offset, 24, 8, ent->viewheight - 8);
+	VectorAdd(offset, vec3_origin, offset);
+	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
+	VectorScale(forward, -2, ent->client->kick_origin);
+
+	edict_t* unit = G_Spawn();
+	for (int bogus = 0; bogus < 100; bogus++)
+	{
+		VectorAdd(forward, start, start);
+	}
+	VectorCopy(start, unit->s.origin);
+	VectorCopy(start, unit->s.old_origin);
+	vectoangles(forward, unit->s.angles);
+	SP_monster_soldier(unit);
+
+	switch (unitTypeNum)
+	{
+	case 1:
+		unit->unitType = "lord";
+		unit->move = 50;
+		unit->lord = 1;
+		unit->defense = 2;
+		unit->resistance = 2;
+		unit->attack = 5;
+		unit->unitSpeed = 5;
+		break;
+	case 2:
+		unit->unitType = "cavalier";
+		unit->move = 100;
+		unit->mounted = 1;
+		unit->defense = 0;
+		unit->resistance = 10;
+		unit->attack = 7;
+		unit->unitSpeed = 5;
+		break;
+	case 3:
+		unit->unitType = "knight";
+		unit->move = 25;
+		unit->armored = 1;
+		unit->defense = 10;
+		unit->resistance = 0;
+		unit->attack = 10;
+		unit->unitSpeed = 1;
+		break;
+	case 4:
+		unit->unitType = "fighter";
+		unit->move = 50;
+		unit->defense = 3;
+		unit->resistance = 2;
+		unit->attack = 6;
+		unit->unitSpeed = 10;
+		break;
+	case 5:
+		unit->unitType = "mage";
+		unit->move = 50;
+		unit->magic = 1;
+		unit->defense = 1;
+		unit->resistance = 1;
+		unit->attack = 6;
+		unit->unitSpeed = 7;
+		break;
+	default:
+		unit->unitType = NULL;
+		break;
+	}
+	unit->classname = "unit";
+	unit->isUnit = 1;
+	unit->tempMove = unit->move;
+	unit->selected = 1;
+	unit->set = 1;
+	unit->dead = 1;
+	ent->unitList[unitTypeNum] = unit;
+
+	if (unitTypeNum == 5)
+	{
+		ent->phase = 1;
+		gi.centerprintf(ent, "Player Phase");
+	}
+}
+
+void Cmd_Forge_f(edict_t* ent)
+{
+	int price = 100;
+	if (!ent->unitSelected)
+	{
+		gi.centerprintf(ent, "No unit selected");
+		return;
+	}
+
+	if (ent->money < price)
+	{
+		gi.centerprintf(ent, "Insufficient funds");
+		return;
+	}
+
+	ent->money -= price;
+	ent->unitSelected->attack *= 2;
+	gi.centerprintf(ent, "Weapon Forged");
+}
+
+void Cmd_North_f(edict_t* ent)
+{
+	vec3_t dir = { 100, 0, 0 };
+	VectorAdd(ent->s.origin, dir, dir);
+	VectorCopy(dir, ent->s.origin);
+}
+void Cmd_South_f(edict_t* ent)
+{
+	vec3_t dir = { -100, 0, 0 };
+	VectorAdd(ent->s.origin, dir, dir);
+	VectorCopy(dir, ent->s.origin);
+}
+void Cmd_Left_f(edict_t* ent)
+{
+	vec3_t dir = { 0, -100, 0 };
+	VectorAdd(ent->s.origin, dir, dir);
+	VectorCopy(dir, ent->s.origin);
+}
+void Cmd_Right_f(edict_t* ent)
+{
+	vec3_t dir = { 0, 100, 0 };
+	VectorAdd(ent->s.origin, dir, dir);
+	VectorCopy(dir, ent->s.origin);
+}
+
+void Cmd_Grid_f(edict_t* ent, char* cmd)
+{
+	//vec3_t dir = { 0, 0, 0 };
+	vec3_t	forward, right;
+	vec3_t	start;
+	vec3_t	offset;
+	//gi.centerprintf(ent, "spawning unit");
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
+	VectorSet(offset, 24, 8, ent->viewheight - 8);
+	VectorAdd(offset, vec3_origin, offset);
+	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
+	VectorScale(forward, -2, ent->client->kick_origin);
+	if (Q_stricmp(cmd, "forward") == 0)
+	{
+		for (int bogus = 0; bogus < 100; bogus++)
+		{
+			VectorAdd(forward, start, start);
+		}
+	}
+	else if (Q_stricmp(cmd, "back") == 0)
+	{
+		for (int bogus = 0; bogus < 100; bogus++)
+		{
+			VectorAdd(forward, start, start);
+		}
+		VectorNegate(start, start);
+	}
+	else if (Q_stricmp(cmd, "left") == 0)
+	{
+		
+	}
+	else if (Q_stricmp(cmd, "right") == 0)
+	{
+
+	}
+	else
+	{
+		return;
+	}
+
+	VectorCopy(start, ent->s.origin);
+}
+
 
 /*
 =================
@@ -937,56 +1135,100 @@ void ClientCommand (edict_t *ent)
 	if (Q_stricmp (cmd, "help") == 0)
 	{
 		Cmd_Help_f (ent);
+		//Cmd_SpawnUnit_f(ent);
 		return;
 	}
+	if (Q_stricmp(cmd, "spawn") == 0)
+	{
+		Cmd_SpawnUnit_f(ent);
+		return;
+	}
+	if (Q_stricmp(cmd, "forge") == 0)
+	{
+		Cmd_Forge_f(ent);
+		return;
+	}
+	/*if (Q_stricmp(cmd, "south") == 0)
+	{
+		Cmd_North_f(ent);
+		return;
+	}
+	if (Q_stricmp(cmd, "north") == 0)
+	{
+		Cmd_South_f(ent);
+		return;
+	}
+	if (Q_stricmp(cmd, "left") == 0)
+	{
+		Cmd_Left_f(ent);
+		return;
+	}
+	if (Q_stricmp(cmd, "right") == 0)
+	{
+		Cmd_Right_f(ent);
+		return;
+	}*/
+
+	if (Q_stricmp(cmd, "forward") == 0)
+	{
+		Cmd_Grid_f(ent, cmd);
+		return;
+	}
+	/*if (Q_stricmp(cmd, "back"))
+	{
+		Cmd_Grid_f(ent, cmd);
+		return;
+	}*/
 
 	if (level.intermissiontime)
 		return;
 
-	if (Q_stricmp (cmd, "use") == 0)
-		Cmd_Use_f (ent);
-	else if (Q_stricmp (cmd, "drop") == 0)
-		Cmd_Drop_f (ent);
-	else if (Q_stricmp (cmd, "give") == 0)
-		Cmd_Give_f (ent);
-	else if (Q_stricmp (cmd, "god") == 0)
-		Cmd_God_f (ent);
-	else if (Q_stricmp (cmd, "notarget") == 0)
-		Cmd_Notarget_f (ent);
-	else if (Q_stricmp (cmd, "noclip") == 0)
-		Cmd_Noclip_f (ent);
-	else if (Q_stricmp (cmd, "inven") == 0)
-		Cmd_Inven_f (ent);
-	else if (Q_stricmp (cmd, "invnext") == 0)
-		SelectNextItem (ent, -1);
-	else if (Q_stricmp (cmd, "invprev") == 0)
-		SelectPrevItem (ent, -1);
-	else if (Q_stricmp (cmd, "invnextw") == 0)
-		SelectNextItem (ent, IT_WEAPON);
-	else if (Q_stricmp (cmd, "invprevw") == 0)
-		SelectPrevItem (ent, IT_WEAPON);
-	else if (Q_stricmp (cmd, "invnextp") == 0)
-		SelectNextItem (ent, IT_POWERUP);
-	else if (Q_stricmp (cmd, "invprevp") == 0)
-		SelectPrevItem (ent, IT_POWERUP);
-	else if (Q_stricmp (cmd, "invuse") == 0)
-		Cmd_InvUse_f (ent);
-	else if (Q_stricmp (cmd, "invdrop") == 0)
-		Cmd_InvDrop_f (ent);
-	else if (Q_stricmp (cmd, "weapprev") == 0)
-		Cmd_WeapPrev_f (ent);
-	else if (Q_stricmp (cmd, "weapnext") == 0)
-		Cmd_WeapNext_f (ent);
-	else if (Q_stricmp (cmd, "weaplast") == 0)
-		Cmd_WeapLast_f (ent);
-	else if (Q_stricmp (cmd, "kill") == 0)
-		Cmd_Kill_f (ent);
-	else if (Q_stricmp (cmd, "putaway") == 0)
-		Cmd_PutAway_f (ent);
-	else if (Q_stricmp (cmd, "wave") == 0)
-		Cmd_Wave_f (ent);
+	if (Q_stricmp(cmd, "use") == 0)
+		Cmd_Use_f(ent);
+	else if (Q_stricmp(cmd, "drop") == 0)
+		Cmd_Drop_f(ent);
+	else if (Q_stricmp(cmd, "give") == 0)
+		Cmd_Give_f(ent);
+	else if (Q_stricmp(cmd, "god") == 0)
+		Cmd_God_f(ent);
+	else if (Q_stricmp(cmd, "notarget") == 0)
+		Cmd_Notarget_f(ent);
+	else if (Q_stricmp(cmd, "noclip") == 0)
+		Cmd_Noclip_f(ent);
+	else if (Q_stricmp(cmd, "inven") == 0)
+		Cmd_Inven_f(ent);
+	else if (Q_stricmp(cmd, "invnext") == 0)
+		SelectNextItem(ent, -1);
+	else if (Q_stricmp(cmd, "invprev") == 0)
+		SelectPrevItem(ent, -1);
+	else if (Q_stricmp(cmd, "invnextw") == 0)
+		SelectNextItem(ent, IT_WEAPON);
+	else if (Q_stricmp(cmd, "invprevw") == 0)
+		SelectPrevItem(ent, IT_WEAPON);
+	else if (Q_stricmp(cmd, "invnextp") == 0)
+		SelectNextItem(ent, IT_POWERUP);
+	else if (Q_stricmp(cmd, "invprevp") == 0)
+		SelectPrevItem(ent, IT_POWERUP);
+	else if (Q_stricmp(cmd, "invuse") == 0)
+		Cmd_InvUse_f(ent);
+	else if (Q_stricmp(cmd, "invdrop") == 0)
+		Cmd_InvDrop_f(ent);
+	else if (Q_stricmp(cmd, "weapprev") == 0)
+		Cmd_WeapPrev_f(ent);
+	else if (Q_stricmp(cmd, "weapnext") == 0)
+		Cmd_WeapNext_f(ent);
+	else if (Q_stricmp(cmd, "weaplast") == 0)
+		Cmd_WeapLast_f(ent);
+	else if (Q_stricmp(cmd, "kill") == 0)
+		Cmd_Kill_f(ent);
+	else if (Q_stricmp(cmd, "putaway") == 0)
+		Cmd_PutAway_f(ent);
+	else if (Q_stricmp(cmd, "wave") == 0)
+		Cmd_Wave_f(ent);
 	else if (Q_stricmp(cmd, "playerlist") == 0)
 		Cmd_PlayerList_f(ent);
+	/*else if (Q_stricmp(cmd, "spawn") == 0)
+		Cmd_SpawnUnit_f(ent);*/
 	else	// anything that doesn't match a command will be a chat
 		Cmd_Say_f (ent, false, true);
 }

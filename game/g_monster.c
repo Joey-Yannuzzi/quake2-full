@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // the damages too, but I'm not sure that's such a good idea.
 void monster_fire_bullet (edict_t *self, vec3_t start, vec3_t dir, int damage, int kick, int hspread, int vspread, int flashtype)
 {
-	fire_bullet (self, start, dir, damage, kick, hspread, vspread, MOD_UNKNOWN);
+	//fire_bullet (self, start, dir, damage, kick, hspread, vspread, MOD_UNKNOWN);
 
 	gi.WriteByte (svc_muzzleflash2);
 	gi.WriteShort (self - g_edicts);
@@ -40,7 +40,7 @@ void monster_fire_bullet (edict_t *self, vec3_t start, vec3_t dir, int damage, i
 
 void monster_fire_shotgun (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick, int hspread, int vspread, int count, int flashtype)
 {
-	fire_shotgun (self, start, aimdir, damage, kick, hspread, vspread, count, MOD_UNKNOWN);
+	//fire_shotgun (self, start, aimdir, damage, kick, hspread, vspread, count, MOD_UNKNOWN);
 
 	gi.WriteByte (svc_muzzleflash2);
 	gi.WriteShort (self - g_edicts);
@@ -50,7 +50,7 @@ void monster_fire_shotgun (edict_t *self, vec3_t start, vec3_t aimdir, int damag
 
 void monster_fire_blaster (edict_t *self, vec3_t start, vec3_t dir, int damage, int speed, int flashtype, int effect)
 {
-	fire_blaster (self, start, dir, damage, speed, effect, false);
+	//fire_blaster (self, start, dir, damage, speed, effect, false);
 
 	gi.WriteByte (svc_muzzleflash2);
 	gi.WriteShort (self - g_edicts);
@@ -60,7 +60,7 @@ void monster_fire_blaster (edict_t *self, vec3_t start, vec3_t dir, int damage, 
 
 void monster_fire_grenade (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed, int flashtype)
 {
-	fire_grenade (self, start, aimdir, damage, speed, 2.5, damage+40);
+	//fire_grenade (self, start, aimdir, damage, speed, 2.5, damage+40);
 
 	gi.WriteByte (svc_muzzleflash2);
 	gi.WriteShort (self - g_edicts);
@@ -70,7 +70,7 @@ void monster_fire_grenade (edict_t *self, vec3_t start, vec3_t aimdir, int damag
 
 void monster_fire_rocket (edict_t *self, vec3_t start, vec3_t dir, int damage, int speed, int flashtype)
 {
-	fire_rocket (self, start, dir, damage, speed, damage+20, damage);
+	//fire_rocket (self, start, dir, damage, speed, damage+20, damage);
 
 	gi.WriteByte (svc_muzzleflash2);
 	gi.WriteShort (self - g_edicts);
@@ -80,7 +80,7 @@ void monster_fire_rocket (edict_t *self, vec3_t start, vec3_t dir, int damage, i
 
 void monster_fire_railgun (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick, int flashtype)
 {
-	fire_rail (self, start, aimdir, damage, kick);
+	//fire_rail (self, start, aimdir, damage, kick);
 
 	gi.WriteByte (svc_muzzleflash2);
 	gi.WriteShort (self - g_edicts);
@@ -90,7 +90,7 @@ void monster_fire_railgun (edict_t *self, vec3_t start, vec3_t aimdir, int damag
 
 void monster_fire_bfg (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed, int kick, float damage_radius, int flashtype)
 {
-	fire_bfg (self, start, aimdir, damage, speed, damage_radius);
+	//fire_bfg (self, start, aimdir, damage, speed, damage_radius);
 
 	gi.WriteByte (svc_muzzleflash2);
 	gi.WriteShort (self - g_edicts);
@@ -415,7 +415,54 @@ void M_MoveFrame (edict_t *self)
 		move->frame[index].thinkfunc (self);
 }
 
+void swapMonster(edict_t* self)
+{
+	g_edicts->unitSelected = self;
+	self->owner = g_edicts;
+}
 
+/*
+============
+Killed taken from g_combat.c
+============
+*/
+/*void Killed(edict_t* targ, edict_t* inflictor, edict_t* attacker, int damage, vec3_t point)
+{
+	if (targ->health < -999)
+		targ->health = -999;
+
+	targ->enemy = attacker;
+
+	if ((targ->svflags & SVF_MONSTER) && (targ->deadflag != DEAD_DEAD))
+	{
+		//		targ->svflags |= SVF_DEADMONSTER;	// now treat as a different content type
+		if (!(targ->monsterinfo.aiflags & AI_GOOD_GUY))
+		{
+			level.killed_monsters++;
+			if (coop->value && attacker->client)
+				attacker->client->resp.score++;
+			// medics won't heal monsters that they kill themselves
+			if (strcmp(attacker->classname, "monster_medic") == 0)
+				targ->owner = attacker;
+		}
+	}
+
+	if (targ->movetype == MOVETYPE_PUSH || targ->movetype == MOVETYPE_STOP || targ->movetype == MOVETYPE_NONE)
+	{	// doors, triggers, etc
+		targ->die(targ, inflictor, attacker, damage, point);
+		return;
+	}
+
+	if ((targ->svflags & SVF_MONSTER) && (targ->deadflag != DEAD_DEAD))
+	{
+		targ->touch = NULL;
+		monster_death_use(targ);
+	}
+
+	targ->die(targ, inflictor, attacker, damage, point);
+}*/
+
+int enemyCount = 0;
 void monster_think (edict_t *self)
 {
 	M_MoveFrame (self);
@@ -427,6 +474,61 @@ void monster_think (edict_t *self)
 	M_CatagorizePosition (self);
 	M_WorldEffects (self);
 	M_SetEffects (self);
+
+	if (!self->set)
+	{
+		enemyCount++;
+		self->unitType = "fighter";
+		self->move = 50;
+		self->defense = 3;
+		self->resistance = 2;
+		self->attack = 6;
+		self->unitSpeed = 10;
+		itoa(enemyCount, self->classname, 10);
+
+		if (Q_stricmp(self->classname, "14") == 0)
+		{
+			self->classname = "enemy";
+			g_edicts->enemyList[0] = self;
+			g_edicts->phase = 1;
+		}
+		else if (Q_stricmp(self->classname, "4") == 0)
+		{
+			self->classname = "enemy";
+			g_edicts->enemyList[1] = self;
+		}
+		else if (Q_stricmp(self->classname, "2") == 0)
+		{
+			self->classname = "enemy";
+			g_edicts->enemyList[2] = self;
+		}
+		else if (Q_stricmp(self->classname, "13") == 0)
+		{
+			self->classname = "enemy";
+			g_edicts->enemyList[3] = self;
+		}
+		else
+		{
+			Killed(self, g_edicts, g_edicts, 1, vec3_origin);
+		}
+
+		self->isUnit = 0;
+		self->tempMove = self->move;
+		self->selected = 1;
+		self->set = 1;
+		self->dead = 1;
+		//g_edicts->phaseChanged = 0;
+	}
+
+	//gi.centerprintf(g_edicts + 1, "outside enemy loop");
+	if ((g_edicts + 1)->phase == 2 && g_edicts->unitSelected == NULL && Q_stricmp(self->classname, "enemy") == 0)
+	{
+		if (self->selected && self->selected == 1)
+		{
+			swapMonster(self);
+			//gi.centerprintf(g_edicts + 1, "selecting enemy");
+		}
+	}
 }
 
 
@@ -698,7 +800,7 @@ void walkmonster_start (edict_t *self)
 
 void flymonster_start_go (edict_t *self)
 {
-	if (!M_walkmove (self, 0, 0))
+	if (!M_walkmove(self, 0, 0))
 		gi.dprintf ("%s in solid at %s\n", self->classname, vtos(self->s.origin));
 
 	if (!self->yaw_speed)

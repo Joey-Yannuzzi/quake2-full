@@ -91,6 +91,10 @@ Killed
 */
 void Killed (edict_t *targ, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {
+	if (targ->lord == 1)
+	{
+		Killed(targ->owner, inflictor, attacker, damage, point);
+	}
 	if (targ->health < -999)
 		targ->health = -999;
 
@@ -486,13 +490,100 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 // do the damage
 	if (take)
 	{
-		if ((targ->svflags & SVF_MONSTER) || (client))
+		if (attacker->phase == 1)
+		{
+			if (Q_stricmp(targ->classname, "enemy") == 0)
+			{
+				gi.centerprintf(attacker, targ->classname);
+				//targ->playerController = attacker;
+			}
+			else if (targ->isUnit)
+			{
+				gi.centerprintf(attacker, targ->unitType);
+			}
+			else
+			{
+				gi.centerprintf(attacker, targ->classname);
+			}
+
+			if (Q_stricmp(targ->classname, "unit") == 0 && targ->owner != attacker && attacker->unitSelected == NULL && targ->selected != 0)
+			{
+				targ->owner = attacker;
+				attacker->unitSelected = targ;
+			}
+			else if (Q_stricmp(targ->classname, "unit") == 0 && targ->owner == attacker)
+			{
+				targ->owner = NULL;
+				attacker->unitSelected = NULL;
+				targ->selected = 0;
+			}
+			else if (Q_stricmp(targ->classname, "enemy") == 0 && attacker->unitSelected && !attacker->unitSelected->attacked)
+			{
+				attacker->unitSelected->attacked = 1;
+				int damage = attacker->unitSelected->attack - targ->defense;
+				if (attacker->unitSelected->magic)
+				{
+					damage = attacker->unitSelected->attack - targ->resistance;
+				}
+				int damageBack = targ->attack - attacker->unitSelected->defense;
+
+				if (damage < 0)
+				{
+					damage = 0;
+				}
+				if (damageBack < 0)
+				{
+					damageBack = 0;
+				}
+
+				if (attacker->unitSelected->unitSpeed > targ->unitSpeed)
+				{
+					damage *= 2;
+				}
+				else if (targ->unitSpeed > attacker->unitSelected->unitSpeed)
+				{
+					damageBack *= 2;
+				}
+
+				targ->health -= damage;
+				char buffer[sizeof(int) * 8 + 1];
+				itoa(damage, buffer, 10);
+
+				if (targ->health < 1)
+				{
+					targ->dead = 0;
+					Killed(targ, attacker->unitSelected, attacker, damage, vec3_origin);
+					gi.centerprintf(attacker, "Enemy killed");
+					attacker->money += 100;
+				}
+				else
+				{
+					char buff2[sizeof(int) * 8 + 1];
+					itoa(damageBack, buff2, 10);
+					gi.centerprintf(attacker, "Dealt %s damage and Took %s damage", buffer, buff2);
+					attacker->unitSelected->health -= damageBack;
+
+					if (attacker->unitSelected->health < 1)
+					{
+						attacker->unitSelected->dead = 0;
+						Killed(attacker->unitSelected, targ, targ, damageBack, vec3_origin);
+						gi.centerprintf(attacker, "unit died");
+					}
+				}
+
+				attacker->unitSelected->owner = NULL;
+				attacker->unitSelected->selected = 0;
+				attacker->unitSelected = NULL;
+			}
+		}
+
+		/*if ((targ->svflags & SVF_MONSTER) || (client))
 			SpawnDamage (TE_BLOOD, point, normal, take);
 		else
-			SpawnDamage (te_sparks, point, normal, take);
+			SpawnDamage (te_sparks, point, normal, take);*/
 
 
-		targ->health = targ->health - take;
+		//targ->health = targ->health - take;
 			
 		if (targ->health <= 0)
 		{

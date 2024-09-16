@@ -655,6 +655,7 @@ qboolean OnSameTeam (edict_t *ent1, edict_t *ent2);
 qboolean CanDamage (edict_t *targ, edict_t *inflictor);
 void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir, vec3_t point, vec3_t normal, int damage, int knockback, int dflags, int mod);
 void T_RadiusDamage (edict_t *inflictor, edict_t *attacker, float damage, edict_t *ignore, float radius, int mod);
+void Killed(edict_t* targ, edict_t* inflictor, edict_t* attacker, int damage, vec3_t point);
 
 // damage flags
 #define DAMAGE_RADIUS			0x00000001	// damage was indirect
@@ -1109,5 +1110,29 @@ struct edict_s
 	// common data blocks
 	moveinfo_t		moveinfo;
 	monsterinfo_t	monsterinfo;
+	char* unitType;
+	int move;
+	int tempMove;
+	int defense;
+	int resistance;
+	int attack;
+	int unitSpeed;
+	int armored; // 1 for armored units; high defense, weak to magic attacks, low movement
+	int mounted; // 1 for mounted units; high movement, weak to physical attacks, high resistance
+	int magic; // 1 for magic units; make magic attacks that hit resistance instead of defense
+	int lord; // 1 for lord units; death causes game over
+	edict_t* unitSelected; //NULL if none are selected
+	int isUnit; // 0 if enemy, 1 if ally
+	int selected; //0 if unit acted this turn
+	int set; //NULL if not set, must be set in monster_think()
+	edict_t* unitList[5];
+	int phase; // 1 if its their phase
+	edict_t* playerController; //stores edict of player for enemy
+	edict_t* enemyList[4];
+	int phaseChanged; //for worldspawn to deal with enemies
+	int money; //player money
+	int moneySet; //set to 1 if money has been set
+	int attacked; //NULL if not attacked this turn
+	int dead; //NULL if dead
 };
 

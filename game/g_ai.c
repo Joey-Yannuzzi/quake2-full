@@ -162,7 +162,7 @@ The monster is walking it's beat
 */
 void ai_walk (edict_t *self, float dist)
 {
-	M_MoveToGoal (self, dist);
+	//M_MoveToGoal(self, dist);
 
 	// check for noticing a player
 	if (FindTarget (self))
@@ -752,7 +752,7 @@ void ai_run_slide(edict_t *self, float distance)
 	else
 		ofs = -90;
 	
-	if (M_walkmove (self, self->ideal_yaw + ofs, distance))
+	if (M_walkmove(self, self->ideal_yaw + ofs, distance))
 		return;
 		
 	self->monsterinfo.lefty = 1 - self->monsterinfo.lefty;

@@ -111,6 +111,38 @@ pr_global_struct->trace_normal is set to the normal of the blocking wall
 //it again later in catagorize position?
 qboolean SV_movestep (edict_t *ent, vec3_t move, qboolean relink)
 {
+	if (ent->owner == NULL)
+	{
+		return (false); //stops all monster movements
+	}
+	else if (Q_stricmp(ent->classname, "unit") == 0)
+	{
+		if (ent->tempMove && ent->tempMove > 0)
+		{
+			ent->tempMove--;
+		}
+		else
+		{
+			gi.centerprintf(ent->owner, "out of movement");
+			return (false);
+		}
+	}
+	else if (Q_stricmp(ent->classname, "enemy") == 0)
+	{
+		if (ent->tempMove && ent->tempMove > 0 && ent->dead == 1)
+		{
+			ent->tempMove--;
+		}
+		else
+		{
+			ent->selected = 0;
+			ent->owner = NULL;
+			g_edicts->unitSelected = NULL;
+			//gi.centerprintf(g_edicts + 1, "enemy stopped");
+			return (false);
+		}
+	}
+
 	float		dz;
 	vec3_t		oldorg, neworg, end;
 	trace_t		trace;
@@ -352,6 +384,11 @@ facing it.
 */
 qboolean SV_StepDirection (edict_t *ent, float yaw, float dist)
 {
+	if (ent->owner == NULL)
+	{
+		return (false);
+	}
+
 	vec3_t		move, oldorigin;
 	float		delta;
 	

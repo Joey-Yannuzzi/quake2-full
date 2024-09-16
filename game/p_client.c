@@ -1559,6 +1559,116 @@ void PrintPmove (pmove_t *pm)
 	Com_Printf ("sv %3i:%i %i\n", pm->cmd.impulse, c1, c2);
 }
 
+//loops through all client's units
+//if unit exists, adds its selected score to the sum
+//selected int will be 1 if unit has not acted this turn (or if unit is not spawned in)
+void PhaseCheck(edict_t* ent)
+{
+	//gi.centerprintf(ent, "client thinking");
+	int sum = 0;
+	for (int bogus = 0; bogus < 5; bogus++)
+	{
+		if (ent->unitList[bogus])
+		{
+			sum += ent->unitList[bogus]->selected;
+		}
+	}
+
+	/*switch(sum)
+	{
+	case 0:
+		gi.centerprintf(ent, "0");
+		break;
+	case 1:
+		gi.centerprintf(ent, "1");
+		break;
+	case 2:
+		gi.centerprintf(ent, "2");
+		break;
+	case 3:
+		gi.centerprintf(ent, "3");
+		break;
+	case 4:
+		gi.centerprintf(ent, "4");
+		break;
+	case 5:
+		gi.centerprintf(ent, "5");
+		break;
+	default:
+		gi.centerprintf(ent, "error");
+	}*/
+	if (sum > 0)
+	{
+		ent->phase = 1;
+	}
+	else
+	{
+		ent->phase = 2;
+		//g_edicts->phase = 2;
+		gi.centerprintf(ent, "Enemy Phase");
+	}
+}
+
+void phaseRestart(edict_t* ent)
+{
+	//gi.centerprintf(ent, "setting phase");
+	ent->phase = 1;
+	//gi.centerprintf(ent, "start");
+	for (int bogus = 0; bogus < 5; bogus++)
+	{
+		if (ent->unitList[bogus])
+		{
+			ent->unitList[bogus]->tempMove = ent->unitList[bogus]->move;
+			ent->unitList[bogus]->selected = 1;
+			ent->unitList[bogus]->attacked = 0;
+		}
+	}
+
+	//gi.centerprintf(ent, "first loop done");
+
+	for (int bogus = 0; bogus < 4; bogus++)
+	{
+		if (g_edicts->enemyList[bogus])
+		{
+			g_edicts->enemyList[bogus]->tempMove = g_edicts->enemyList[bogus]->move;
+			g_edicts->enemyList[bogus]->selected = 1;
+		}
+	}
+
+	//g_edicts->phaseChanged = 0;
+	//gi.centerprintf(ent, "second loop done");
+}
+
+int checkPhase()
+{
+	int res = 0;
+	for (int bogus = 0; bogus < 4; bogus++)
+	{
+		/*char buffer[sizeof(int) * 8 + 1];
+		itoa(g_edicts->enemyList[bogus]->selected, buffer, 10);
+		gi.centerprintf(g_edicts + 1, buffer);*/
+		res += g_edicts->enemyList[bogus]->selected;
+	}
+	return (res);
+}
+
+void checkVictory(edict_t* ent)
+{
+	int sum = 0;
+	
+	for (int bogus = 0; bogus < 4; bogus++)
+	{
+		if (g_edicts->enemyList[bogus])
+		{
+			sum += g_edicts->enemyList[bogus]->dead;
+		}
+	}
+
+	if (sum == 0)
+	{
+		gi.centerprintf(ent, "VICTORY!");
+	}
+}
 /*
 ==============
 ClientThink
@@ -1569,6 +1679,11 @@ usually be a couple times for each server frame.
 */
 void ClientThink (edict_t *ent, usercmd_t *ucmd)
 {
+	if (!ent->moneySet)
+	{
+		ent->moneySet = 1;
+		ent->money = 1000;
+	}
 	gclient_t	*client;
 	edict_t	*other;
 	int		i, j;
@@ -1741,6 +1856,37 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 		if (other->inuse && other->client->chase_target == ent)
 			UpdateChaseCam(other);
 	}
+
+	//gi.centerprintf(ent, "outside phase stuff");
+	if (ent->phase)
+	{
+		if (ent->phase == 1)
+		{
+			//gi.centerprintf(ent, "phase: 1");
+			PhaseCheck(ent);
+		}
+		else if (ent->phase == 2)
+		{
+			//gi.centerprintf(ent, "phase: 0");
+		}
+		else
+		{
+			//gi.centerprintf(ent, "fixing phase");
+			ent->phase = 1;
+			char buffer[sizeof(int) * 8 + 1];
+			itoa(ent->phase, buffer, 10);
+			//gi.centerprintf(ent, buffer);
+		}
+
+		if (ent->phase == 2 && checkPhase() == 0)
+		{
+			//ent->phase = 1;
+			gi.centerprintf(ent, "player phase");
+			phaseRestart(ent);
+		}
+	}
+
+	checkVictory(ent);
 }
 
 
